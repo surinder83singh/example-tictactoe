@@ -65,7 +65,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../../dist')));
 
 async function loadDashboard() {
-  for (;;) {
+  //for (;;) {
     try {
       console.log('loading dashboard');
       const {dashboard} = await getDashboard();
@@ -76,7 +76,7 @@ async function loadDashboard() {
       console.log('findDashboard at startup failed:', err);
     }
     await sleep(500);
-  }
+  //}
 }
 
 const rpcServer = jayson.server({

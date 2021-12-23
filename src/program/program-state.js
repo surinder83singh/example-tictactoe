@@ -6,9 +6,9 @@
 
 import * as BufferLayout from 'buffer-layout';
 import {PublicKey} from '@solana/web3.js';
-import type {AccountInfo} from '@solana/web3.js';
+import {AccountInfo} from '@solana/web3.js';
 
-const emptyKey = new PublicKey('0x0');
+const emptyKey = new PublicKey([]);
 
 const publicKeyLayout = (property: string = 'publicKey'): Object => {
   return BufferLayout.blob(32, property);

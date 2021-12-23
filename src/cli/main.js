@@ -7,7 +7,7 @@ import readline from 'readline-promise';
 
 import {sleep} from '../util/sleep';
 import {TicTacToe} from '../program/tic-tac-toe';
-import type {Board} from '../program/program-state';
+import {Board} from '../program/program-state';
 import {fetchDashboard} from '../server/config';
 
 function renderBoard(board: Board): string {

@@ -1,9 +1,9 @@
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
+use solana_program::{msg};
 use solana_sdk::{
-    info,
     program_error::{PrintProgramError, ProgramError},
-    program_utils::DecodeError,
+    decode_error::DecodeError,
 };
 use thiserror::Error;
 
@@ -25,7 +25,7 @@ pub enum TicTacToeError {
 
 impl From<TicTacToeError> for ProgramError {
     fn from(e: TicTacToeError) -> Self {
-        ProgramError::CustomError(e as u32)
+        ProgramError::Custom(e as u32)
     }
 }
 
@@ -41,12 +41,12 @@ impl PrintProgramError for TicTacToeError {
         E: 'static + std::error::Error + DecodeError<E> + PrintProgramError + FromPrimitive,
     {
         match self {
-            TicTacToeError::DeserializationFailed => info!("Error: deserialization failed"),
-            TicTacToeError::GameInProgress => info!("Error: game in progress"),
-            TicTacToeError::InvalidMove => info!("Error: invalid move"),
-            TicTacToeError::InvalidTimestamp => info!("Error: invalid timestamp"),
-            TicTacToeError::NotYourTurn => info!("Error: not your turn"),
-            TicTacToeError::PlayerNotFound => info!("Error: player not found"),
+            TicTacToeError::DeserializationFailed => msg!("Error: deserialization failed"),
+            TicTacToeError::GameInProgress => msg!("Error: game in progress"),
+            TicTacToeError::InvalidMove => msg!("Error: invalid move"),
+            TicTacToeError::InvalidTimestamp => msg!("Error: invalid timestamp"),
+            TicTacToeError::NotYourTurn => msg!("Error: not your turn"),
+            TicTacToeError::PlayerNotFound => msg!("Error: player not found"),
         }
     }
 }

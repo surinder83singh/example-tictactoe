@@ -20,6 +20,7 @@
     "build:bpf-c": "rm ./dist/program/tictactoe.so; V=1 make -C program-bpf-c",
     "clean:bpf-c": "make -C program-bpf-c clean",
     "build:bpf-rust": "./program-bpf-rust/do.sh build",
+    "build:program-rust": "cargo build-bpf --manifest-path=./program-bpf-rust/Cargo.toml --bpf-out-dir=dist/program",
     "clean:bpf-rust": "./program-bpf-rust/do.sh clean",
     "cluster:localnet": "rm -f .env",
     "cluster:devnet": "cp cluster-devnet.env .env",
@@ -39,7 +40,7 @@
     "prettier": "^1.14.3"
   },
   "dependencies": {
-    "@solana/web3.js": "0.47.1",
+    "@solana/web3.js": "^1.31.0",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^10.0.1",
@@ -56,15 +57,15 @@
     "buffer-layout": "^1.2.0",
     "css-loader": "^3.1.0",
     "dotenv": "8.2.0",
-    "eslint": "^6.1.0",
-    "eslint-loader": "^3.0.0",
+    "eslint": "^8.5.0",
+    "eslint-loader": "^4.0.2",
     "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-react": "^7.11.1",
     "event-emitter": "^0.3.5",
     "express": "^4.16.4",
     "flow-bin": "0.119.1",
     "flow-typed": "^3.0.0",
-    "http-server": "^0.12.0",
+    "http-server": "^14.0.0",
     "jayson": "^3.0.1",
     "json-to-pretty-yaml": "^1.2.2",
     "mkdirp-promise": "^5.0.1",
@@ -77,10 +78,10 @@
     "readline-promise": "^1.0.3",
     "semver": "^7.0.0",
     "superstruct": "^0.8.0",
-    "watch": "^1.0.2",
+    "watch": "^0.13.0",
     "webpack": "^4.20.2",
-    "webpack-cli": "^3.1.1",
-    "webpack-dev-server": "^3.1.9"
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.7.0"
   },
   "engines": {
     "node": "11.x"

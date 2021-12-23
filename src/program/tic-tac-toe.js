@@ -7,7 +7,7 @@
  */
 
 import EventEmitter from 'event-emitter';
-import {Account, PublicKey, Transaction, SystemProgram} from '@solana/web3.js';
+import {Account, PublicKey, Transaction, SystemProgram, TransactionInstruction} from '@solana/web3.js';
 import type {AccountInfo, Connection} from '@solana/web3.js';
 
 import * as ProgramCommand from './program-command';
@@ -130,7 +130,8 @@ export class TicTacToe {
     const invalidAccount = new Account();
     const gameAccount = new Account();
 
-    const transaction = SystemProgram.createAccount({
+    const transaction = new Transaction();
+    transaction.add(SystemProgram.createAccount({
       // The initGame instruction funds `gameAccount`, so the account here can
       // be one with zero lamports (an invalid account)
       fromPubkey: invalidAccount.publicKey,
@@ -138,8 +139,8 @@ export class TicTacToe {
       lamports: 0,
       space: 255, // data space
       programId,
-    });
-    transaction.add({
+    }));
+    transaction.add(new TransactionInstruction({
       keys: [
         {pubkey: gameAccount.publicKey, isSigner: true, isWritable: true},
         {pubkey: dashboard, isSigner: false, isWritable: true},
@@ -152,7 +153,7 @@ export class TicTacToe {
       ],
       programId,
       data: ProgramCommand.initGame(),
-    });
+    }));
 
     await sendAndConfirmTransaction(
       'initGame',

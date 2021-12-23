@@ -16,15 +16,13 @@ num-derive = "0.2"
 num-traits = "0.2"
 serde = { version = "1.0.100", default-features = false, features = ["alloc", "derive"] }
 serde_derive = "1.0"
-solana-sdk = { version="=1.1.1", default-features = false }
+solana-program = "=1.7.9"
+solana-sdk = { version="=1.7.9", default-features = false }
 thiserror = "1.0"
 
-[dev_dependencies]
-solana-sdk-bpf-test = { path = "../node_modules/@solana/web3.js/bpf-sdk/rust/test"}
+#[dev_dependencies]
+#solana-sdk-bpf-test = { path = "../node_modules/@solana/web3.js/bpf-sdk/rust/test"}
 
-[features]
-program = ["solana-sdk/program"]
-default = ["program"]
 
 [workspace]
 members = []

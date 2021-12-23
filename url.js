@@ -19,6 +19,8 @@ function chooseCluster(): Cluster | undefined {
 
 export const cluster = chooseCluster();
 
+console.log("cluster:", cluster)
+
 export const url =
   process.env.RPC_URL ||
   (process.env.LIVE ? clusterApiUrl(cluster, false) : 'http://localhost:8899');
@@ -26,6 +28,9 @@ export const url =
 export const urlTls =
   process.env.RPC_URL ||
   (process.env.LIVE ? clusterApiUrl(cluster, true) : 'http://localhost:8899');
+
+console.log("url:", url)
+console.log("urlTls:", urlTls)
 
 export let walletUrl =
   process.env.WALLET_URL || 'https://solana-example-webwallet.herokuapp.com/';

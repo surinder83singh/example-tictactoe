@@ -14,8 +14,11 @@ import {
   Transaction,
   SystemProgram,
   sendAndConfirmRawTransaction,
+  sendAndConfirmTransaction as realSendAndConfirmTransaction,
+  TransactionInstruction,
+  Keypair
 } from '@solana/web3.js';
-import type {AccountInfo, Connection} from '@solana/web3.js';
+import {AccountInfo, Connection} from '@solana/web3.js';
 
 import {newSystemAccountWithAirdrop} from '../util/new-system-account-with-airdrop';
 import {sleep} from '../util/sleep';
@@ -24,6 +27,11 @@ import * as ProgramCommand from './program-command';
 import {deserializeDashboardState} from './program-state';
 import type {DashboardState} from './program-state';
 import {TicTacToe} from './tic-tac-toe';
+
+let greetedPubkey;
+let payer;
+//let greetedAccount;
+let GREETING_SIZE;
 
 export class TicTacToeDashboard {
   state: DashboardState;
@@ -71,39 +79,99 @@ export class TicTacToeDashboard {
     programId: PublicKey,
   ): Promise<TicTacToeDashboard> {
     const SizeOfDashBoardData = 255;
+    GREETING_SIZE = 255;
     const {feeCalculator} = await connection.getRecentBlockhash();
     const lamports = 1000000000; // enough to cover rent for game and player accounts
     const balanceNeeded =
       feeCalculator.lamportsPerSignature * 3 /* payer + 2 signers */ +
       (await connection.getMinimumBalanceForRentExemption(SizeOfDashBoardData));
-    const tempAccount = await newSystemAccountWithAirdrop(
+    payer = await newSystemAccountWithAirdrop(
       connection,
       lamports + balanceNeeded,
     );
 
-    const dashboardAccount = new Account();
+    let dashboardAccount = Keypair.generate();
 
-    const transaction = SystemProgram.createAccount({
-      fromPubkey: tempAccount.publicKey,
-      newAccountPubkey: dashboardAccount.publicKey,
-      lamports: lamports,
-      space: SizeOfDashBoardData,
+    
+    const GREETING_SEED = 'hello';
+    /*
+    greetedPubkey = await PublicKey.createWithSeed(
+      payer.publicKey,
+      GREETING_SEED,
       programId,
-    });
-    transaction.add({
+    );
+    */
+
+    // Check if the greeting account has already been created
+    //greetedAccount = await connection.getAccountInfo(greetedPubkey);
+    //if (greetedAccount === null) {
+      console.log(
+        'Creating account',
+        dashboardAccount.publicKey.toBase58(),
+        'to say hello to',
+      );
+      /*
+      const lamports = await connection.getMinimumBalanceForRentExemption(
+        GREETING_SIZE,
+      );
+      */
+
+      const transaction = new Transaction().add(
+        SystemProgram.createAccount({
+          fromPubkey: payer.publicKey,
+          //basePubkey: payer.publicKey,
+          //seed: GREETING_SEED,
+          newAccountPubkey: dashboardAccount.publicKey,
+          lamports,
+          space: SizeOfDashBoardData,
+          programId,
+        }),
+      );
+      console.log("ssssssss")
+      await realSendAndConfirmTransaction(connection, transaction, [payer, dashboardAccount]);
+      console.log("ssssssss 22222")
+      //greetedAccount = await connection.getAccountInfo(greetedPubkey);
+    //}
+
+    return await this.initDashboard(connection, dashboardAccount, programId);
+  }
+
+  /**
+ * Say hello
+ */
+   static async initDashboard(connection, dashboardAccount, programId): Promise<void> {
+    /*
+      console.log('Saying hello to', greetedPubkey.toBase58());
+      const instruction = new TransactionInstruction({
+        keys: [{pubkey: greetedPubkey, isSigner: false, isWritable: true}],
+        programId,
+        data: Buffer.alloc(0), // All instructions are hellos
+      });
+      await sendAndConfirmTransaction(
+        connection,
+        new Transaction().add(instruction),
+        [payer],
+      );
+    */
+    //const transaction = new Transaction();
+    //transaction.add(createAccountTx)
+    console.log("programId", programId, payer, dashboardAccount)
+    const instruction = new TransactionInstruction({
       keys: [
         {pubkey: dashboardAccount.publicKey, isSigner: true, isWritable: true},
       ],
       programId,
       data: ProgramCommand.initDashboard(),
     });
-    await sendAndConfirmTransaction(
-      'initDashboard',
+
+    console.log("ccccc")
+    await realSendAndConfirmTransaction(
       connection,
-      transaction,
-      tempAccount,
-      dashboardAccount,
+      new Transaction().add(instruction),
+      [payer, dashboardAccount]
     );
+
+    console.log("dddd")
 
     return new TicTacToeDashboard(connection, programId, dashboardAccount);
   }
@@ -172,25 +240,7 @@ export class TicTacToeDashboard {
       blockhash: recentBlockhash,
       feeCalculator,
     } = await this.connection.getRecentBlockhash();
-    let transaction = new Transaction({recentBlockhash});
-    transaction.add(
-      SystemProgram.assign({
-        fromPubkey: playerPublicKey,
-        programId: this.programId,
-      }),
-      {
-        keys: [
-          {
-            pubkey: this._dashboardAccount.publicKey,
-            isSigner: true,
-            isWritable: true,
-          },
-          {pubkey: playerPublicKey, isSigner: true, isWritable: true},
-        ],
-        programId: this.programId,
-        data: ProgramCommand.initPlayer(),
-      },
-    );
+
     const accountStorageOverhead = 128;
     const balanceNeeded =
       feeCalculator.lamportsPerSignature * 3 /* payer + 2 signer keys */ +
@@ -202,10 +252,38 @@ export class TicTacToeDashboard {
       balanceNeeded,
     );
 
-    transaction.signPartial(
+
+    let transaction = new Transaction({
+      feePayer:payerAccount.publicKey,
+      recentBlockhash
+    });
+
+    console.log("this._dashboardAccount.publicKey", this._dashboardAccount.publicKey)
+    console.log("ssssss:", playerPublicKey, this.programId)
+    transaction.add(
+      SystemProgram.assign({
+        accountPubkey: playerPublicKey,
+        programId: this.programId,
+      })
+    )
+    transaction.add(
+      new TransactionInstruction({
+        keys: [
+          {
+            pubkey: this._dashboardAccount.publicKey,
+            isSigner: true,
+            isWritable: true,
+          },
+          {pubkey: playerPublicKey, isSigner: true, isWritable: true},
+        ],
+        programId: this.programId,
+        data: ProgramCommand.initPlayer(),
+      }),
+    );
+    
+    transaction.partialSign(
       payerAccount,
-      this._dashboardAccount,
-      playerPublicKey,
+      this._dashboardAccount
     );
     return transaction;
   }
@@ -218,7 +296,7 @@ export class TicTacToeDashboard {
     const transaction = await this._requestPlayerAccountTransaction(
       playerAccount.publicKey,
     );
-    transaction.addSigner(playerAccount);
+    transaction.partialSign(playerAccount);
     await sendAndConfirmRawTransaction(
       this.connection,
       transaction.serialize(),

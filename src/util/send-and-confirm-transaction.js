@@ -22,18 +22,23 @@ export async function sendAndConfirmTransaction(
   ...signers: Array<Account>
 ): Promise<void> {
   const when = Date.now();
-
+  console.log("eeee")
   const {feeCalculator} = await connection.getRecentBlockhash();
+  console.log("eeee2222")
   const high_lamport_watermark = feeCalculator.lamportsPerSignature * 100; // wag
   const low_lamport_watermark = feeCalculator.lamportsPerSignature * 10; // enough to cover any transaction
+  
   if (!payerAccount) {
+    console.log("eeee33333")
     const newPayerAccount = await newSystemAccountWithAirdrop(
       connection,
       high_lamport_watermark,
     );
+    console.log("eeee4444")
     // eslint-disable-next-line require-atomic-updates
     payerAccount = payerAccount || newPayerAccount;
   }
+  console.log("fffff")
   const payerBalance = await connection.getBalance(payerAccount.publicKey);
   // Top off payer if necessary
   if (payerBalance < low_lamport_watermark) {
@@ -43,20 +48,25 @@ export async function sendAndConfirmTransaction(
     );
   }
 
+  console.log("gggg")
+  signers.unshift(payerAccount)
+
   let signature;
   try {
     signature = await realSendAndConfirmTransaction(
       connection,
       transaction,
-      payerAccount,
-      ...signers,
+      signers,
     );
   } catch (err) {
+    console.log("signers", signers)
     // Transaction failed to confirm, it's possible the network restarted
     // eslint-disable-next-line require-atomic-updates
     payerAccount = null;
     throw err;
   }
+
+  console.log("hhh")
 
   const body = {
     time: new Date(when).toString(),
