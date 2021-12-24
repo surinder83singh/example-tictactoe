@@ -22,23 +22,24 @@ export async function sendAndConfirmTransaction(
   ...signers: Array<Account>
 ): Promise<void> {
   const when = Date.now();
-  console.log("eeee")
+  //console.log("eeee")
   const {feeCalculator} = await connection.getRecentBlockhash();
-  console.log("eeee2222")
+  //console.log("eeee2222")
   const high_lamport_watermark = feeCalculator.lamportsPerSignature * 100; // wag
   const low_lamport_watermark = feeCalculator.lamportsPerSignature * 10; // enough to cover any transaction
   
   if (!payerAccount) {
-    console.log("eeee33333")
+    //console.log("eeee33333")
     const newPayerAccount = await newSystemAccountWithAirdrop(
       connection,
       high_lamport_watermark,
     );
-    console.log("eeee4444")
+    //console.log("eeee4444")
     // eslint-disable-next-line require-atomic-updates
     payerAccount = payerAccount || newPayerAccount;
+    console.log(title+":sendAndConfirmTransaction: creating new account", payerAccount.publicKey.toBase58())
   }
-  console.log("fffff")
+  //console.log("fffff")
   const payerBalance = await connection.getBalance(payerAccount.publicKey);
   // Top off payer if necessary
   if (payerBalance < low_lamport_watermark) {
@@ -48,8 +49,8 @@ export async function sendAndConfirmTransaction(
     );
   }
 
-  console.log("gggg")
-  signers.unshift(payerAccount)
+  
+  //signers.unshift(payerAccount)
 
   let signature;
   try {
@@ -59,7 +60,7 @@ export async function sendAndConfirmTransaction(
       signers,
     );
   } catch (err) {
-    console.log("signers", signers)
+    console.log("signers", signers.map(a=>a.publicKey.toBase58()))
     // Transaction failed to confirm, it's possible the network restarted
     // eslint-disable-next-line require-atomic-updates
     payerAccount = null;

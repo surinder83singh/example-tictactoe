@@ -137,7 +137,7 @@ export class TicTacToeDashboard {
   }
 
   /**
- * Say hello
+ * Init Dashboard
  */
    static async initDashboard(connection, dashboardAccount, programId): Promise<void> {
     /*
@@ -258,8 +258,8 @@ export class TicTacToeDashboard {
       recentBlockhash
     });
 
-    console.log("this._dashboardAccount.publicKey", this._dashboardAccount.publicKey)
-    console.log("ssssss:", playerPublicKey, this.programId)
+    //console.log("this._dashboardAccount.publicKey", this._dashboardAccount.publicKey)
+    console.log("_requestPlayerAccountTransaction: ssssss:", playerPublicKey.toBase58(), this.programId.toBase58())
     transaction.add(
       SystemProgram.assign({
         accountPubkey: playerPublicKey,
@@ -292,6 +292,7 @@ export class TicTacToeDashboard {
    * Finds another player and starts a game
    */
   async startGame(): Promise<TicTacToe> {
+    console.log("creating player account")
     const playerAccount = new Account();
     const transaction = await this._requestPlayerAccountTransaction(
       playerAccount.publicKey,
@@ -301,6 +302,10 @@ export class TicTacToeDashboard {
       this.connection,
       transaction.serialize(),
     );
+
+    let playerAccountInfo = await this.connection.getAccountInfo(playerAccount.publicKey);
+
+    console.log("player account created", playerAccount.publicKey.toBase58(), playerAccountInfo)
 
     let myGame: TicTacToe | null = null;
 
@@ -348,12 +353,14 @@ export class TicTacToeDashboard {
       }
 
       if (!myGame) {
+        console.log("creating new game: TicTacToe.create ==================>", this.publicKey.toBase58(), this.programId.toBase58())
         myGame = await TicTacToe.create(
           this.connection,
           this.programId,
           this.publicKey,
           playerAccount,
         );
+        console.log("new game: TicTacToe.create: created ==================>")
       }
 
       if (

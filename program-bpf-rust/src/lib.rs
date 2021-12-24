@@ -122,7 +122,7 @@ fn process_instruction(
             return Err(ProgramError::InvalidArgument);
         }
         if game_account.owner != player_account.owner || !player_account.data_is_empty() {
-            msg!("Invalid player account2222");
+            msg!("Invalid player account2222 {:?}!={:?}, is_empty{:?}", game_account.owner, player_account.owner, player_account.data_is_empty());
             return Err(ProgramError::InvalidArgument);
         }
 

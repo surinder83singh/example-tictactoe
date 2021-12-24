@@ -12,9 +12,9 @@ export async function newSystemAccountWithAirdrop(
   lamports: number = 1,
 ): Promise<Account> {
   const account = new Account();
-  console.log("xxxx1", account.publicKey, lamports)
+  console.log("newSystemAccountWithAirdrop: account.publicKey", account.publicKey.toBase58(), lamports)
   let sig = await connection.requestAirdrop(account.publicKey, lamports);
-  console.log("xxxx22222")
+  //console.log("xxxx22222")
   await connection.confirmTransaction(sig);
   return account;
 }

@@ -81,6 +81,7 @@ export function deserializeDashboardState(
 
   let completedGames = [];
   for (let i = dashboard.lastGameIndex; i >= 0; i--) {
+    //console.log("xxxxxx:", i, dashboard.completedGames[i])
     completedGames.unshift(dashboard.completedGames[i]);
   }
   for (
@@ -88,8 +89,12 @@ export function deserializeDashboardState(
     i > dashboard.lastGameIndex;
     i--
   ) {
-    completedGames.unshift(dashboard.completedGames[i]);
+    //console.log("xxxxxx222:", i, dashboard.completedGames[i])
+    if(dashboard.completedGames[i])
+      completedGames.unshift(dashboard.completedGames[i]);
   }
+
+  //console.log("completedGames", dashboard.completedGames, completedGames)
 
   const pending = new PublicKey(dashboard.pendingGame);
   return {
